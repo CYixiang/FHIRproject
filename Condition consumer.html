@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FHIR Condition 口乾症狀調閱</title>
+  <script src="setting.js"></script>
+  <script src="HTTP2024.js"></script>
+</head>
+<body>
+  <h2>FHIR Condition 口乾症狀調閱</h2>
+  <form id="searchForm">
+    <label for="patientId">病人ID:</label>
+    <input type="text" id="patientId" value="5264" required><br><br>
+    
+    <button type="button" onclick="fetchDryMouthCondition()">查詢口乾症狀</button>
+    <div id="conditionList"></div>
+  </form>
+
+  <script>
+    var apiURL = 'https://fhir.tcumi.com:58443/r5/fhir/Condition';
+
+    function fetchDryMouthCondition() {
+      var patientId = document.getElementById('patientId').value;
+      const searchEndpoint = `${apiURL}?subject=Patient/${patientId}&code=24820006`;
+
+      fetch(searchEndpoint)
+        .then(response => response.json())
+        .then(data => {
+          if (data.total > 0) {
+            const conditions = data.entry.map(entry => entry.resource);
+            displayDryMouthConditions(conditions);
+          } else {
+            document.getElementById('conditionList').innerHTML = '找不到符合條件的口乾症狀記錄';
+          }
+        })
+        .catch(error => console.error('錯誤:', error));
+    }
+
+    function displayDryMouthConditions(conditions) {
+      const conditionListDiv = document.getElementById('conditionList');
+      conditionListDiv.innerHTML = '';
+
+      conditions.forEach(condition => {
+        const conditionInfo = document.createElement('p');
+        conditionInfo.textContent = `口乾症狀發生日期: ${condition.onsetDateTime}，嚴重程度: ${condition.severity.text}`;
+        conditionListDiv.appendChild(conditionInfo);
+      });
+    }
+  </script>
+</body>
+</html>
