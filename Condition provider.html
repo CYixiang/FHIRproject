@@ -1,1 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FHIR  Condition 口乾症狀填寫</title>
+  <script src="setting.js"></script>
+  <script src="HTTP2024.js"></script>
+</head>
+<body>
+  <h2>FHIR  Condition 口乾症狀填寫</h2>
+  <form id="conditionForm">
+    <label for="patientName">病人姓名:</label>
+    <input type="text" id="patientName" required><br><br>
+    
+    <label for="onsetDate">症狀發生日期:</label>
+    <input type="date" id="onsetDate" required><br><br>
+    
+    <label for="severity">嚴重程度:</label>
+    <select id="severity" required>
+      <option value="">選擇嚴重程度</option>
+      <option value="mild">輕微</option>
+      <option value="moderate">中度</option>
+      <option value="severe">嚴重</option>
+    </select><br><br>
+    
+    <button type="button" onclick="createCondition()">創建 Condition</button>
+  </form>
 
+  <script>
+    function createCondition() {
+      var patientName = document.getElementById('patientName').value;
+      
+      var condition = {
+        resourceType: 'Condition',
+        clinicalStatus: {
+          coding: [{
+            system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+            code: 'active',
+            display: 'Active' 
+          }],
+          text: 'Active'
+        },
+        verificationStatus: {
+          coding: [{
+            system: 'http://terminology.hl7.org/CodeSystem/condition-ver-status',
+            code: 'confirmed',
+            display: 'Confirmed' 
+          }],
+          text: 'Confirmed'
+        },
+        code: {
+          coding: [{
+            system: 'http://snomed.info/sct',
+            code: '24820006',
+            display: '口乾'
+          }],
+          text: '口乾'
+        },
+        subject: {
+          reference: 'Patient/5264',//我的病人ID
+          display: patientName
+        },
+        onsetDateTime: document.getElementById('onsetDate').value + 'T00:00:00Z',
+        severity: {
+          coding: [{
+            system: 'http://snomed.info/sct',
+            code: getSeverityCode(),
+            display: getSeverityText()
+          }],
+          text: getSeverityText()
+        }
+      };
+
+      var jsonStr = JSON.stringify(condition);
+      sendHttpPost(apiURL, jsonStr, callBack);
+    }
+
+    function getSeverityCode() {
+      var severitySelect = document.getElementById('severity');
+      return severitySelect.options[severitySelect.selectedIndex].value;
+    }
+
+    function getSeverityText() {
+      var severitySelect = document.getElementById('severity');
+      return severitySelect.options[severitySelect.selectedIndex].text;
+    }
+
+ 
+    function callBack(ret) {
+      alert(ret);
+      console.log(ret);
+    }
+  </script>
+</body>
+</html>
