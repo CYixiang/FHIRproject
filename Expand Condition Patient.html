@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FHIR Patient Upload</title>
+  <style>
+    body {
+      background-image: url('https://img-bsy.txrpic.com/preview/element/00/01/13/41/E-1134169-1BA2729CXZ.jpg?imageMogr2/quality/90/thumbnail/!800x%3E');
+      background-size: cover; /* 背景圖片填滿整個容器 */
+     
+    }
+  </style>
+  <script src="setting.js"></script>
+  <script src="HTTP2024.js"></script>
+</head>
+<body>
+  
+  <h2>擴充表單建立病人頁面</h2>
+  <form id="patientForm">
+   
+    <label for="patientName">Patient Name:</label>
+    <input type="text" id="patientName" required><br><br>
+    <label for="patientGender">Gender:</label>
+    <select id="patientGender" required>
+      <option value="">Select Gender</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+      <option value="other">Other</option>
+    </select><br><br>
+    
+    <label for="patientBirthDate">Date of Birth:</label>
+    <input type="date" id="patientBirthDate" required><br><br>
+
+    <label for="patientAddress">Address:</label>
+    <input type="text" id="patientAddress"><br><br>
+
+   
+
+    <button type="submit">Upload Patient</button>
+  </form>
+
+  <script>
+    document.getElementById('patientForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      //創建病人資源
+      var patientResource = {
+        resourceType: 'Patient',
+        name: [{
+          text: document.getElementById('patientName').value
+        }],
+        gender: document.getElementById('patientGender').value,
+        birthDate: document.getElementById('patientBirthDate').value,
+        address: [{
+          text: document.getElementById('patientAddress').value
+        }]
+        // 基於 FHIR 規範，新增更多病人資訊
+      };
+
+
+      // 發送 POST 請求到指定的 FHIR 伺服器，將指定的資料以 JSON 格式傳遞。
+      fetch(fhirServerUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/fhir+json'
+        },
+        body: JSON.stringify(patientResource)
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+          //處理成功回應
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // 處理錯誤回應
+        });
+    });
+  </script>
+</body>
+</html>
